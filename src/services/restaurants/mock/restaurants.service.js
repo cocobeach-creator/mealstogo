@@ -18,6 +18,7 @@ export const transformRestaurants = (results) => {
     });
     return {
       ...r,
+      id: r.name,
       isOpenNow: r.opening_hours && r.opening_hours.open_now,
       isClosedTemporarily: r.business_status === "CLOSED_TEMPORARILY",
     };

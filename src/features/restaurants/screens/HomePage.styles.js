@@ -1,4 +1,5 @@
 import { StatusBar, StyleSheet } from "react-native";
+import { spacing } from "../../../utils/theme/sizes";
 
 export const styles = StyleSheet.create({
   safeView: {
@@ -7,5 +8,8 @@ export const styles = StyleSheet.create({
   },
   spinner: {
     flex: 1,
+  },
+  search: {
+    padding: spacing.xl,
   },
 });

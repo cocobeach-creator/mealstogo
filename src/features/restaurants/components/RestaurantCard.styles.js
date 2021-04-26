@@ -41,4 +41,9 @@ export const styles = StyleSheet.create({
     fontWeight: fontWeights.regular,
     color: colors.ui.error,
   },
+  heartIcon: {
+    position: "absolute",
+    top: 25,
+    right: 25,
+  },
 });

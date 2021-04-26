@@ -1,14 +1,23 @@
 import React from "react";
+import { connect } from "react-redux";
 import { View, Text, Image } from "react-native";
 import { Card } from "react-native-paper";
 import { SvgXml } from "react-native-svg";
 import star from "../../../../assets/star";
 import open from "../../../../assets/open";
 import Spacer from "../../../components/spacer/Spacer";
+import { AntDesign } from "@expo/vector-icons";
 import { styles } from "./RestaurantCard.styles";
+import { addRestaurantFav, deleteRestaurantFav } from "../../../redux/actions";
 
-export default function RestaurantCard({ restaurant = {} }) {
+function RestaurantCard({
+  restaurant = {},
+  isFav = false,
+  addRestaurantFav,
+  deleteRestaurantFav,
+}) {
   const {
+    id = 1,
     name = "some restaurant",
     icon = "https://maps.gstatic.com/mapfiles/place_api/icons/v1/png_71/lodging-71.png",
     photos = [
@@ -27,7 +36,23 @@ export default function RestaurantCard({ restaurant = {} }) {
       <Card styles={styles.card} elevation={5}>
         <Card.Content>
           <Card.Cover source={{ uri: photos[0] }} />
-
+          {isFav ? (
+            <AntDesign
+              style={styles.heartIcon}
+              size={30}
+              color="#FF0000"
+              name="heart"
+              onPress={() => deleteRestaurantFav(id)}
+            />
+          ) : (
+            <AntDesign
+              style={styles.heartIcon}
+              size={30}
+              color="white"
+              name="hearto"
+              onPress={() => addRestaurantFav({id:id, name:name, photos:photos})}
+            />
+          )}
           <Text style={styles.title}>{name}</Text>
           <View style={styles.iconsContainer}>
             <View style={styles.ratingView}>
@@ -55,3 +80,7 @@ export default function RestaurantCard({ restaurant = {} }) {
     </>
   );
 }
+
+export default connect(null, { addRestaurantFav, deleteRestaurantFav })(
+  RestaurantCard
+);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, FlatList, TouchableOpacity } from "react-native";
+import { View, SafeAreaView, FlatList, TouchableOpacity } from "react-native";
 import { ActivityIndicator, Colors } from "react-native-paper";
 import Spacer from "../../../components/spacer/Spacer";
 import { spacing } from "../../../utils/theme/sizes";
@@ -8,9 +8,18 @@ import { styles } from "./HomePage.styles";
 import { connect } from "react-redux";
 import { fetchRestaurants, fetchLocation } from "../../../redux/actions";
 import Search from "../components/Search";
+import FavoritesBar from "../components/FavoritesBar";
 
-function HomePage({ restaurants, location, fetchRestaurants, fetchLocation, navigation }) {
+function HomePage({
+  restaurants,
+  location,
+  fetchRestaurants,
+  fetchLocation,
+  navigation,
+  favorites,
+}) {
   const [loaded, setLoaded] = useState(false);
+  const [toggle, setToggle] = useState(false);
 
   useEffect(() => {
     const mountFetch = async () => {
@@ -26,15 +35,13 @@ function HomePage({ restaurants, location, fetchRestaurants, fetchLocation, navi
     mountFetch();
   }, []);
 
-
-
-  const submitSearch = async (searchTerm) =>{
-    if (!searchTerm){
+  const submitSearch = async (searchTerm) => {
+    if (!searchTerm) {
       return null;
     }
     try {
       await fetchLocation(searchTerm.toLowerCase());
-    } catch (err){
+    } catch (err) {
       console.log(err);
     }
   };
@@ -43,7 +50,7 @@ function HomePage({ restaurants, location, fetchRestaurants, fetchLocation, navi
     const searchRestaurants = async () => {
       setLoaded(false);
       try {
-        const locationString = `${location.lat},${location.lng}`;
+        const locationString = `${location.coordinates.lat},${location.coordinates.lng}`;
         await fetchRestaurants(locationString);
         setTimeout(() => {
           setLoaded(true);
@@ -52,7 +59,7 @@ function HomePage({ restaurants, location, fetchRestaurants, fetchLocation, navi
         console.log(err);
       }
     };
-    if (Object.keys(location).length > 0){
+    if (Object.keys(location.coordinates).length > 0) {
       searchRestaurants();
     }
   }, [location]);
@@ -60,35 +67,47 @@ function HomePage({ restaurants, location, fetchRestaurants, fetchLocation, navi
   return (
     <>
       <SafeAreaView style={styles.safeView}>
-        <Search submitSearch={submitSearch} />
-        {loaded ?
+        <View style={styles.search}>
+          <Search submitSearch={submitSearch} icon={toggle ? "heart" : "heart-outline"} onToggle={()=>setToggle(!toggle)}/>
+        </View>
+        {toggle && <FavoritesBar favorites={favorites.favorites} navigation={navigation}/>}
+        {loaded ? (
           <FlatList
             data={restaurants}
-            renderItem={(r) => (
+            renderItem={({ item }) => (
               <Spacer position="bottom" size="small">
-                <TouchableOpacity onPress={()=>navigation.navigate("RestaurantDetails", {restaurant:r.item})}>
-                <RestaurantCard restaurant={r.item} />
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate("RestaurantDetails", {
+                      restaurant: item,
+                    })
+                  }
+                >
+                  <RestaurantCard
+                    restaurant={item}
+                    isFav={favorites.favorites.some((f) => f.id === item.id)}
+                  />
                 </TouchableOpacity>
               </Spacer>
             )}
             keyExtractor={(item) => item.name}
             contentContainerStyle={{ padding: spacing.xl }}
           />
-         : 
+        ) : (
           <ActivityIndicator
             style={styles.spinner}
             animating={!loaded}
             color={Colors.red800}
             size="large"
           />
-        }
+        )}
       </SafeAreaView>
     </>
   );
 }
 
-function mapStateToProps({ restaurants, location }) {
-  return { restaurants, location };
+function mapStateToProps({ restaurants, location, favorites }) {
+  return { restaurants, location, favorites };
 }
 
 export default connect(mapStateToProps, { fetchRestaurants, fetchLocation })(

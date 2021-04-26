@@ -1,25 +1,44 @@
-import React, { useState } from "react";
-import { View } from "react-native";
+import React, { useEffect, useState } from "react";
 import { Searchbar } from "react-native-paper";
-import { styles } from "./Search.styles";
+import { connect } from "react-redux";
 
-export default function Search({ submitSearch }) {
+function Search({ submitSearch, location, icon, onToggle }) {
   const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    if (location.search) {
+      const words = location.search.split(" ");
+      const capitalize = words
+        .map((w) => {
+          return w[0].toUpperCase() + w.substr(1);
+        })
+        .join(" ");
+      setSearchTerm(capitalize);
+    }
+  }, [location]);
 
   const onChangeSearch = (search) => {
     setSearchTerm(search);
   };
+
+  const pressedIcon = () =>{
+    onToggle();
+  }
+
   return (
-    <View style={styles.search}>
-      <Searchbar
-        placeholder="Find a Restaurant"
-        onChangeText={onChangeSearch}
-        value={searchTerm}
-        onSubmitEditing={() => {
-          submitSearch(searchTerm);
-          setSearchTerm("");
-        }}
-      />
-    </View>
-  );
+    <Searchbar
+      placeholder="Find a Restaurant"
+      onChangeText={onChangeSearch}
+      value={searchTerm}
+      onSubmitEditing={() => submitSearch(searchTerm)}
+      icon={icon}
+      onIconPress={icon==="heart" | icon==="heart-outline" ? pressedIcon : null}
+    />
+  )
 }
+
+function mapStateToProps({ location }) {
+  return { location };
+}
+
+export default connect(mapStateToProps, null)(Search);

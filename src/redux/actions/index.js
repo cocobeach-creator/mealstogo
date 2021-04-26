@@ -6,7 +6,12 @@ import {
   restaurantsRequest,
   transformRestaurants,
 } from "../../services/restaurants/mock/restaurants.service";
-import { FETCH_RESTAURANTS, FETCH_LOCATION } from "./types";
+import {
+  FETCH_RESTAURANTS,
+  FETCH_LOCATION,
+  ADD_FAVORITE,
+  DELETE_FAVORITE,
+} from "./types";
 
 export const fetchRestaurants = (location) => async (dispatch) => {
   const res = await restaurantsRequest(location);
@@ -17,5 +22,17 @@ export const fetchRestaurants = (location) => async (dispatch) => {
 export const fetchLocation = (searchTerm) => async (dispatch) => {
   const res = await locationRequest(searchTerm);
   const res2 = await locationTransform(res);
-  dispatch({ type: FETCH_LOCATION, payload: res2 });
+
+  dispatch({
+    type: FETCH_LOCATION,
+    payload: { search: searchTerm, coordinates: res2 },
+  });
+};
+
+export const addRestaurantFav = (restaurant) => (dispatch) => {
+  dispatch({ type: ADD_FAVORITE, payload: restaurant });
+};
+
+export const deleteRestaurantFav = (restaurantId) => (dispatch) => {
+  dispatch({ type: DELETE_FAVORITE, payload: restaurantId });
 };

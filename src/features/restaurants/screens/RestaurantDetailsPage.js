@@ -1,16 +1,28 @@
 import React from "react";
-import { Text, SafeAreaView } from "react-native";
+import { SafeAreaView, ScrollView } from "react-native";
+import {connect} from "react-redux";
+import MenuList from "../components/MenuList";
 import RestaurantCard from "../components/RestaurantCard";
-import {styles} from "./RestaurantDetailsPage.styles";
+import { styles } from "./RestaurantDetailsPage.styles";
 
-export default function RestaurantDetailsPage({route}){
+ function RestaurantDetailsPage({ route, favorites }) {
+  const { restaurant } = route.params;
 
-    const {restaurant} = route.params;
-    
-    return(
-        <SafeAreaView style={styles.safeView}>
-        <Text>Restaurant Details</Text>
-        <RestaurantCard restaurant={restaurant}/>
-        </SafeAreaView>
-    )
+  return (
+    <SafeAreaView style={styles.safeView}>
+      <RestaurantCard 
+      restaurant={restaurant}
+      isFav={favorites.favorites.some((f) => f.id === restaurant.id)} 
+      />
+      <ScrollView>
+        <MenuList />
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
+
+function mapStateToProps({ favorites }) {
+  return { favorites };
+}
+
+export default connect(mapStateToProps, null)(RestaurantDetailsPage);
